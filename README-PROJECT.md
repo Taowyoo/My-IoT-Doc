@@ -151,3 +151,60 @@ Following picture may be hard to recognize, you may open them in a new page to t
 5. Full demo
 
     [Full demo](https://drive.google.com/file/d/1l3XqyFa8WWp5Rg-gJpOXu9PODotDBt0L/view?usp=sharing)
+
+
+## Summary of some tricky problem resolved
+
+### CCS811
+
+Read chip datasheet carefully, this chip need 5V power but not 3.3 power which Raspberry Pi provides.
+
+If using drive from **Adafruit**, do not using their deprecated library, such as `Adafruit Python GPIO` or `Adafruit CCS811`, but use their **CircuitPython** library.
+
+When coding, let program wait for a short time after instantiate the I2C instance in order to  guarantee the I2C instance has been fully initialized.
+
+```python
+i2c_bus = busio.I2C(SCL, SDA)
+sleep(few_seconds)
+ccs =  adafruit_ccs811.CCS811(i2c_bus)
+```
+
+### Redis
+
+Redis does not maintain the connection when it's idle after a read/write operation. So sometimes, redis may operate on a broken connection which throws a ConnectionException.
+
+So you have to explicitly set the connection timeout for each Jedis instance(IF using Jedis):
+```
+Jedis(host,port,a_high_timeout)
+```
+
+Also, this cannot ensure the problem won't occur again, so you may add  try/catch surrounding any read/write operation to fully resolve such problems.
+
+
+## Future
+
+### SMTP client
+
+Add SMTP client to send notification e-mail to user.
+
+### CoAP server
+
+Perfect CoAP server for transmission between CAD and GDA. 
+
+### CI/CD
+
+1. Perfect the `GitHub Action` for online VCS.
+2. Setup Jenkins for CDA on Raspberry Pi.
+3. Add code packaging.
+
+### More cloud service support
+
+1. Add support for more cloud service:
+   1. AWS
+   2. Azure
+   3. GCP
+
+### Perfect comments and docs
+
+1. Perfect comments everywhere.
+2. Add a feature to generate docs.
